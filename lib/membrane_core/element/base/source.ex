@@ -25,13 +25,13 @@ defmodule Membrane.Element.Base.Source do
       def handle_pad_removed(_pad, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_demand1(_pad, _context, state), do:
+      def handle_single_demand(_pad, _context, state), do:
         {{:error, :handle_demand_not_implemented}, state}
 
       @doc false
       def handle_demand(pad, size, :buffers, context, state) do
         1..size |> Membrane.Element.Manager.Common.reduce_something1_results(state, fn _, st ->
-            handle_demand1 pad, context, st
+            handle_single_demand pad, context, st
           end)
       end
       def handle_demand(_pad, _size, _unit, _context, state), do:
@@ -45,7 +45,7 @@ defmodule Membrane.Element.Base.Source do
         handle_new_pad: 3,
         handle_pad_added: 3,
         handle_pad_removed: 3,
-        handle_demand1: 3,
+        handle_single_demand: 3,
         handle_demand: 5,
         handle_event: 4,
       ]

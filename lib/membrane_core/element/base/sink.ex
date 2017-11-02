@@ -31,12 +31,12 @@ defmodule Membrane.Element.Base.Sink do
       def handle_event(_pad, _event, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_write1(_pad, _buffer, _context, state), do: {:ok, state}
+      def handle_single_write(_pad, _buffer, _context, state), do: {:ok, state}
 
       @doc false
       def handle_write(pad, buffers, context, state) do
         buffers |> Membrane.Element.Manager.Common.reduce_something1_results(state, fn buf, st ->
-            handle_write1 pad, buf, context, st
+            handle_single_write pad, buf, context, st
           end)
       end
 
@@ -48,7 +48,7 @@ defmodule Membrane.Element.Base.Sink do
         handle_caps: 4,
         handle_event: 4,
         handle_write: 4,
-        handle_write1: 4,
+        handle_single_write: 4,
       ]
     end
   end

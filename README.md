@@ -92,7 +92,7 @@ Events are used to pass extra information between elements, and may have impact 
 
 ## Buffers
 
-Buffers are structs containing payload and metadata. They are to be made by sources, processed by filters and consumed by sinks. Therefore incoming buffer implies executing handle_process/4 callback on filters and handle_write/4 on sinks. They are also `handle_process1/4` and `handle_write1/4` callbacks, accepting single buffer instead of list of buffers. Buffers can arrive only in `playing` playback state.
+Buffers are structs containing payload and metadata. They are to be made by sources, processed by filters and consumed by sinks. Therefore incoming buffer implies executing handle_process/4 callback on filters and handle_write/4 on sinks. They are also `handle_single_process/4` and `handle_single_write/4` callbacks, accepting single buffer instead of list of buffers. Buffers can arrive only in `playing` playback state.
 
 ## Demands
 
