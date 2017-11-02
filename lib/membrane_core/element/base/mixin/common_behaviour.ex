@@ -27,28 +27,28 @@ defmodule Membrane.Element.Base.Mixin.CommonBehaviour do
       def handle_init(_options), do: {:ok, %{}}
 
       @doc false
-      def handle_prepare(_previous_playback_state, state), do: {:ok, state}
+      def handle_prepare(_previous_playback_state, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_play(state), do: {:ok, state}
+      def handle_play(_context, state), do: {:ok, state}
 
       @doc false
-      def handle_stop(state), do: {:ok, state}
+      def handle_stop(_context, state), do: {:ok, state}
 
       @doc false
-      def handle_other(_message, state), do: {:ok, state}
+      def handle_other(_message, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_shutdown(_state), do: :ok
+      def handle_shutdown(_context, _state), do: :ok
 
 
       defoverridable [
         handle_init: 1,
-        handle_prepare: 2,
-        handle_play: 1,
-        handle_stop: 1,
-        handle_other: 2,
-        handle_shutdown: 1,
+        handle_prepare: 3,
+        handle_play: 2,
+        handle_stop: 2,
+        handle_other: 3,
+        handle_shutdown: 2,
       ]
     end
   end

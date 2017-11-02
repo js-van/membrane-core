@@ -41,12 +41,12 @@ defmodule Membrane.Mixins.CallbackHandler do
           state
       end
 
-      def exec_and_handle_callback(callback, handler_params \\ nil, args, state) do
+      def exec_and_handle_callback(callback, handler_params \\ nil, args, context, state) do
         internal_state = state |> Map.get(:internal_state)
         module = state |> Map.get(:module)
         with \
           {{:ok, actions}, new_internal_state} <- module
-            |> apply(callback, args ++ [internal_state])
+            |> apply(callback, args ++ [context, internal_state])
             |> handle_callback_result(module, callback, state),
           state = state |> Map.put(:internal_state, new_internal_state),
           {:ok, state} <- actions

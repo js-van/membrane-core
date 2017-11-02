@@ -49,7 +49,8 @@ defmodule Membrane.Element.Manager.Common do
 
       def handle_message(message, state) do
         use Membrane.Element.Manager.Log
-        exec_and_handle_callback(:handle_other, [message], state)
+        context = %{playback_state: state.playback_state}
+        exec_and_handle_callback(:handle_other, [message], context, state)
           |> or_warn_error("Error while handling message", state)
       end
 
@@ -64,15 +65,15 @@ defmodule Membrane.Element.Manager.Common do
       def handle_playback_state(:prepared, :playing, state) do
         with \
           {:ok, state} <- state |> Common.fill_sink_pull_buffers,
-          {:ok, state} <- exec_and_handle_callback(:handle_play, [], state),
+          {:ok, state} <- exec_and_handle_callback(:handle_play, [], %{}, state),
           do: {:ok, state}
       end
 
       def handle_playback_state(:prepared, :stopped, state), do:
-        exec_and_handle_callback :handle_stop, [], state
+        exec_and_handle_callback :handle_stop, [], %{}, state
 
       def handle_playback_state(ps, :prepared, state) when ps in [:stopped, :playing], do:
-        exec_and_handle_callback :handle_prepare, [ps], state
+        exec_and_handle_callback :handle_prepare, [ps], %{}, state
 
       def handle_link(pad_name, pid, other_name, props, state) do
         state |> State.link_pad(pad_name, fn %{direction: dir, mode: mode} = data -> data
@@ -105,7 +106,7 @@ defmodule Membrane.Element.Manager.Common do
 
       def handle_unlink(pad_name, state) do
         with \
-          {:ok, state} <- exec_and_handle_callback(:handle_pad_removed, [pad_name], state),
+          {:ok, state} <- exec_and_handle_callback(:handle_pad_removed, [pad_name], %{}, state),
           {:ok, state} <- state |> State.remove_pad_data(:any, pad_name),
         do: {:ok, state}
       end
@@ -150,11 +151,11 @@ defmodule Membrane.Element.Manager.Common do
   def do_handle_caps(pad_name, caps, %State{module: module} = state) do
     %{accepted_caps: accepted_caps, caps: old_caps} =
       state |> State.get_pad_data!(:sink, pad_name)
-    params = %{caps: old_caps}
+    context = %{caps: old_caps, playback_state: state.playback_state}
     with \
       :ok <- (if accepted_caps == :any || caps in accepted_caps do :ok else :invalid_caps end),
       {:ok, state} <- module.manager_module.exec_and_handle_callback(
-        :handle_caps, %{caps: caps}, [pad_name, caps, params], state)
+        :handle_caps, %{caps: caps}, [pad_name, caps], context, state)
     do
       state |> State.set_pad_data(:sink, pad_name, :caps, caps)
     else
@@ -205,9 +206,9 @@ defmodule Membrane.Element.Manager.Common do
 
   def exec_event_handler(pad_name, event, %State{module: module} = state) do
     %{direction: dir, caps: caps} = state |> State.get_pad_data!(:any, pad_name)
-    params = %{caps: caps}
+    context = %{caps: caps, playback_state: state.playback_state}
     module.manager_module.exec_and_handle_callback(
-      :handle_event, %{direction: dir, event: event}, [pad_name, event, params], state)
+      :handle_event, %{direction: dir, event: event}, [pad_name, event], context, state)
   end
 
   def handle_pullbuffer_output(pad_name, {:event, e}, state), do:
@@ -281,6 +282,6 @@ defmodule Membrane.Element.Manager.Common do
   end
 
   def handle_pad_added(args, %State{module: module} = state), do:
-    module.manager_module.exec_and_handle_callback(:handle_pad_added, args, state)
+    module.manager_module.exec_and_handle_callback(:handle_pad_added, args, %{}, state)
 
 end

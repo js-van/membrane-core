@@ -333,7 +333,7 @@ defmodule Membrane.Pipeline do
           {:prepared, :playing} -> {:handle_play, []}
           {:prepared, :stopped} -> {:handle_stop, []}
         end),
-      {:ok, state} <- exec_and_handle_callback(callback, args, state)
+      {:ok, state} <- exec_and_handle_callback(callback, args, %{}, state)
     do
       debug "Pipeline: changed playback state of children to #{inspect new}"
       {:ok, state}
@@ -347,14 +347,14 @@ defmodule Membrane.Pipeline do
   @doc false
   def handle_info([:membrane_message, %Membrane.Message{} = message], state) do
     # FIXME set sender
-    exec_and_handle_callback(:handle_message, [message, self()], state)
+    exec_and_handle_callback(:handle_message, [message, self()], %{}, state)
       |> noreply(state)
   end
 
   @doc false
   # Callback invoked on other incoming message
   def handle_info(message, state) do
-    exec_and_handle_callback(:handle_other, [message], state)
+    exec_and_handle_callback(:handle_other, [message], %{}, state)
       |> noreply(state)
   end
 
@@ -415,28 +415,28 @@ defmodule Membrane.Pipeline do
       def handle_init(_options), do: {:ok, %{}}
 
       @doc false
-      def handle_prepare(_playback_state, state), do: {:ok, {[], state}}
+      def handle_prepare(_playback_state, _context, state), do: {:ok, {[], state}}
 
       @doc false
-      def handle_play(state), do: {:ok, {[], state}}
+      def handle_play(_context, state), do: {:ok, {[], state}}
 
       @doc false
-      def handle_stop(state), do: {:ok, {[], state}}
+      def handle_stop(_context, state), do: {:ok, {[], state}}
 
       @doc false
-      def handle_message(_message, _from, state), do: {:ok, {[], state}}
+      def handle_message(_message, _from, _context, state), do: {:ok, {[], state}}
 
       @doc false
-      def handle_other(_message, state), do: {:ok, {[], state}}
+      def handle_other(_message, _context, state), do: {:ok, {[], state}}
 
 
       defoverridable [
         handle_init: 1,
-        handle_prepare: 2,
-        handle_play: 1,
-        handle_stop: 1,
-        handle_message: 3,
-        handle_other: 2,
+        handle_prepare: 3,
+        handle_play: 2,
+        handle_stop: 2,
+        handle_message: 4,
+        handle_other: 3,
       ]
     end
   end

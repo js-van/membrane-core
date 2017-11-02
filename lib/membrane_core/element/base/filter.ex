@@ -17,39 +17,39 @@ defmodule Membrane.Element.Base.Filter do
       # Default implementations
 
       @doc false
-      def handle_new_pad(_pad, _direction, _params, state), do: {:error, :adding_pad_unsupported}
+      def handle_new_pad(_pad, _direction, _context, state), do: {:error, :adding_pad_unsupported}
 
       @doc false
-      def handle_pad_added(_pad, _direction, state), do: {:ok, state}
+      def handle_pad_added(_pad, _direction, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_pad_removed(_pad, state), do: {:ok, state}
+      def handle_pad_removed(_pad, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_caps(_pad, _caps, _params, state), do: {{:ok, forward: :all}, state}
+      def handle_caps(_pad, _caps, _context, state), do: {{:ok, forward: :all}, state}
 
       @doc false
-      def handle_event(_pad, _event, _params, state), do: {{:ok, forward: :all}, state}
+      def handle_event(_pad, _event, _context, state), do: {{:ok, forward: :all}, state}
 
       @doc false
-      def handle_demand(_pad, _size, _unit, _params, state), do:
+      def handle_demand(_pad, _size, _unit, _context, state), do:
         {{:error, :handle_demand_not_implemented}, state}
 
       @doc false
-      def handle_process1(_pad, _buffer, _params, state), do: {:ok, state}
+      def handle_process1(_pad, _buffer, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_process(pad, buffers, params, state) do
+      def handle_process(pad, buffers, context, state) do
         buffers |> Membrane.Element.Manager.Common.reduce_something1_results(state, fn b, st ->
-            handle_process1 pad, b, params, st
+            handle_process1 pad, b, context, st
           end)
       end
 
 
       defoverridable [
         handle_new_pad: 4,
-        handle_pad_added: 3,
-        handle_pad_removed: 2,
+        handle_pad_added: 4,
+        handle_pad_removed: 4,
         handle_caps: 4,
         handle_event: 4,
         handle_demand: 5,

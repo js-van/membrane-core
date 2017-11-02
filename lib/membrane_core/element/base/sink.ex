@@ -16,35 +16,35 @@ defmodule Membrane.Element.Base.Sink do
       # Default implementations
 
       @doc false
-      def handle_new_pad(_pad, _params, state), do: {:error, :adding_pad_unsupported}
+      def handle_new_pad(_pad, _context, state), do: {:error, :adding_pad_unsupported}
 
       @doc false
-      def handle_pad_added(_pad, state), do: {:ok, state}
+      def handle_pad_added(_pad, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_pad_removed(_pad, state), do: {:ok, state}
+      def handle_pad_removed(_pad, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_caps(_pad, _caps, _params, state), do: {:ok, state}
+      def handle_caps(_pad, _caps, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_event(_pad, _event, _params, state), do: {:ok, state}
+      def handle_event(_pad, _event, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_write1(_pad, _buffer, _params, state), do: {:ok, state}
+      def handle_write1(_pad, _buffer, _context, state), do: {:ok, state}
 
       @doc false
-      def handle_write(pad, buffers, params, state) do
+      def handle_write(pad, buffers, context, state) do
         buffers |> Membrane.Element.Manager.Common.reduce_something1_results(state, fn buf, st ->
-            handle_write1 pad, buf, params, st
+            handle_write1 pad, buf, context, st
           end)
       end
 
 
       defoverridable [
         handle_new_pad: 3,
-        handle_pad_added: 2,
-        handle_pad_removed: 2,
+        handle_pad_added: 3,
+        handle_pad_removed: 3,
         handle_caps: 4,
         handle_event: 4,
         handle_write: 4,
